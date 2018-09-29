@@ -990,6 +990,11 @@ pub const DEBUG_REPORT_ERROR_BIT_EXT: u32 = 0x00000008;
 pub const DEBUG_REPORT_DEBUG_BIT_EXT: u32 = 0x00000010;
 pub type DebugReportFlagsEXT = Flags;
 
+pub type ShaderInfoTypeAMD = u32;
+pub const SHADER_INFO_TYPE_STATISTICS_AMD: u32 = 0;
+pub const SHADER_INFO_TYPE_BINARY_AMD: u32 = 1;
+pub const SHADER_INFO_TYPE_DISASSEMBLY_AMD: u32 = 2;
+
 pub type MacOSSurfaceCreateFlagsMVK = u32;
 
 pub type IOSSurfaceCreateFlagsMVK = u32;
@@ -2648,6 +2653,38 @@ pub struct DebugMarkerMarkerInfoEXT {
   pub color:       [f32; 4],
 }
 
+/// * `numUsedVgprs`             -> number of VGPRs used
+/// * `numUsedSgprs`             -> number of SGPRs used
+/// * `ldsSizePerLocalWorkGroup` -> max LDS size per work group in bytes
+/// * `ldsUsageSizeInBytes`      -> LDS usage size in bytes per work group
+/// * `scratchMemUsageInBytes`   -> scratch memory usage in bytes
+#[repr(C)]
+pub struct ShaderResourceUsageAMD {
+  pub numUsedVgprs:             u32,
+  pub numUsedSgprs:             u32,
+  pub ldsSizePerLocalWorkGroup: u32,
+  pub ldsUsageSizeInBytes:      usize,
+  pub scratchMemUsageInBytes:   usize,
+}
+
+/// * `shaderStageMask`      -> logical shader stages contained within shader
+/// * `resourceUsage`        -> ShaderResourceUsageAMD instance
+/// * `numPhysicalVgprs`     -> max number of VGPRs available to device
+/// * `numPhysicalSgprs`     -> max number of SGPRs available to device
+/// * `numAvailableVgprs`    -> max limit of VGPRs available to compiler
+/// * `numAvailableSgprs`    -> max limit of SGPRs available to compiler
+/// * `computeWorkGroupSize` -> local workgroup size of shader [x, y, z]
+#[repr(C)]
+pub struct ShaderStatisticsInfoAMD {
+  pub shaderStageMask:      ShaderStageFlags,
+  pub resourceUsage:        ShaderResourceUsageAMD,
+  pub numPhysicalVgprs:     u32,
+  pub numPhysicalSgprs:     u32,
+  pub numAvailableVgprs:    u32,
+  pub numAvailableSgprs:    u32,
+  pub computeWorkGroupSize: [u32; 3],
+}
+
 macro_rules! ptrs {
     ($struct_name:ident, { $($name:ident => ($($param_n:ident: $param_ty:ty),*) -> $ret:ty,)+ }) => (
         pub struct $struct_name {
@@ -2901,4 +2938,5 @@ ptrs!(DevicePointers, {
     CmdDebugMarkerBeginEXT => (commandBuffer: CommandBuffer, pMarkerInfo: *const DebugMarkerMarkerInfoEXT) -> (),
     CmdDebugMarkerEndEXT => (commandBuffer: CommandBuffer) -> (),
     CmdDebugMarkerInsertEXT => (commandBuffer: CommandBuffer, pMarkerInfo: *const DebugMarkerMarkerInfoEXT) -> (),
+    GetShaderInfoAMD => (device: Device, pipeline: Pipeline, shaderStage: ShaderStageFlagBits, infoType: ShaderInfoTypeAMD, pInfoSize: *mut usize, pInfo: *mut u8) -> Result,
 });
