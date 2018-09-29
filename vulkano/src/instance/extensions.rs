@@ -400,6 +400,7 @@ device_extensions! {
     khr_dedicated_allocation => b"VK_KHR_dedicated_allocation",
     khr_incremental_present => b"VK_KHR_incremental_present",
     ext_debug_marker => b"VK_EXT_debug_marker",
+    amd_shader_info => b"VK_AMD_shader_info",
 }
 
 /// Error that can happen when loading the list of layers.

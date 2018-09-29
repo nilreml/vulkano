@@ -161,6 +161,44 @@ impl<Pl> ComputePipeline<Pl> {
       pipeline_layout: pipeline_layout,
     })
   }
+
+  pub fn get_amd_shader_info_disassembly(&self) -> Option<String> {
+    unsafe {
+      let device = self.device();
+      let vk = device.pointers();
+
+      if !device.loaded_extensions().amd_shader_info {
+        None
+      } else {
+        let mut info_size = 0;
+        check_errors(vk.GetShaderInfoAMD(
+          device.internal_object(),
+          self.inner.pipeline,
+          vk::SHADER_STAGE_COMPUTE_BIT,         // vk::SHADER_STAGE_ALL,
+          vk::SHADER_INFO_TYPE_DISASSEMBLY_AMD, // vk::SHADER_INFO_TYPE_STATISTICS_AMD,  // vk::SHADER_INFO_TYPE_BINARY_AMD,
+          &mut info_size,
+          ptr::null_mut(),
+        ))
+        .unwrap();
+
+        let mut info_data: Vec<u8> = Vec::with_capacity(info_size);
+        check_errors(vk.GetShaderInfoAMD(
+          device.internal_object(),
+          self.inner.pipeline,
+          vk::SHADER_STAGE_COMPUTE_BIT,         // vk::SHADER_STAGE_ALL,
+          vk::SHADER_INFO_TYPE_DISASSEMBLY_AMD, // vk::SHADER_INFO_TYPE_STATISTICS_AMD,  // vk::SHADER_INFO_TYPE_BINARY_AMD,
+          &mut info_size,
+          info_data.as_mut_ptr(),
+        ))
+        .unwrap();
+
+        info_data.set_len(info_size);
+
+        use std::ffi::CStr;
+        Some(CStr::from_bytes_with_nul(&info_data).unwrap().to_string_lossy().into_owned())
+      }
+    }
+  }
 }
 
 impl<Pl> fmt::Debug for ComputePipeline<Pl> {
