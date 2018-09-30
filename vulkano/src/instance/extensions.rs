@@ -403,7 +403,6 @@ device_extensions! {
     DeviceExtensions,
     RawDeviceExtensions,
 
-
     // Supported by vulkano :
     khr_swapchain => b"VK_KHR_swapchain",
     khr_display_swapchain => b"VK_KHR_display_swapchain",
@@ -457,7 +456,26 @@ device_extensions! {
     ext_shader_viewport_index_layer => b"VK_EXT_shader_viewport_index_layer",
 
     // AMD extensions :
+    amd_buffer_marker => b"VK_AMD_buffer_marker",
+    amd_calibrated_timestamps => b"VK_AMD_calibrated_timestamps",
+    amd_draw_indirect_count => b"VK_AMD_draw_indirect_count",
+    amd_gcn_shader => b"VK_AMD_gcn_shader",
+    amd_gpa_interface => b"VK_AMD_gpa_interface",
+    amd_gpu_shader_half_float => b"VK_AMD_gpu_shader_half_float",
+    amd_gpu_shader_half_float_fetch => b"VK_AMD_gpu_shader_half_float_fetch",
+    amd_gpu_shader_int16 => b"VK_AMD_gpu_shader_int16",
+    amd_mixed_attachment_samples => b"VK_AMD_mixed_attachment_samples",
+    amd_rasterization_order => b"VK_AMD_rasterization_order",
+    amd_shader_ballot => b"VK_AMD_shader_ballot",
+    amd_shader_core_properties => b"VK_AMD_shader_core_properties",
+    amd_shader_explicit_vertex_parameter => b"VK_AMD_shader_explicit_vertex_parameter",
+    amd_shader_fragment_mask => b"VK_AMD_shader_fragment_mask",
+    amd_shader_image_load_store_lod => b"VK_AMD_shader_image_load_store_lod",
     amd_shader_info => b"VK_AMD_shader_info", // implemented in ComputePipeline
+    amd_shader_trinary_minmax => b"VK_AMD_shader_trinary_minmax",
+    amd_texture_gather_bias_lod => b"VK_AMD_texture_gather_bias_lod",
+    amd_wave_limits => b"VK_AMD_wave_limits",
+    // amd_negative_viewport_height => b"VK_AMD_negative_viewport_height", // must not be used with khr_maintenance1 or Vulkan 1.1
 }
 
 /// Error that can happen when loading the list of layers.
