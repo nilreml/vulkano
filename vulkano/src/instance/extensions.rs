@@ -386,21 +386,78 @@ instance_extensions! {
     mvk_moltenvk => b"VK_MVK_moltenvk",     // TODO: confirm that it's an instance extension
     nn_vi_surface => b"VK_NN_vi_surface",
     ext_swapchain_colorspace => b"VK_EXT_swapchain_colorspace",
-    khr_get_physical_device_properties2 => b"VK_KHR_get_physical_device_properties2",
+    khr_get_physical_device_properties2 => b"VK_KHR_get_physical_device_properties2", // in core since Vulkan 1.1
+
+    /*
+    // TODO: support in vulkano
+    khr_get_surface_capabilities2 => b"VK_KHR_get_surface_capabilities2",
+    ext_debug_utils => b"VK_EXT_debug_utils",
+    khr_device_group_creation => b"VK_KHR_device_group_creation", // in core since Vulkan 1.1
+    khr_external_fence_capabilities => b"VK_KHR_external_fence_capabilities", // in core since Vulkan 1.1
+    khr_external_memory_capabilities => b"VK_KHR_external_memory_capabilities", // in core since Vulkan 1.1
+    khr_external_semaphore_capabilities => b"VK_KHR_external_semaphore_capabilities", // in core since Vulkan 1.1
+    */
 }
 
 device_extensions! {
     DeviceExtensions,
     RawDeviceExtensions,
+
+
+    // Supported by vulkano :
     khr_swapchain => b"VK_KHR_swapchain",
     khr_display_swapchain => b"VK_KHR_display_swapchain",
-    khr_sampler_mirror_clamp_to_edge => b"VK_KHR_sampler_mirror_clamp_to_edge",
-    khr_maintenance1 => b"VK_KHR_maintenance1",
-    khr_get_memory_requirements2 => b"VK_KHR_get_memory_requirements2",
-    khr_dedicated_allocation => b"VK_KHR_dedicated_allocation",
     khr_incremental_present => b"VK_KHR_incremental_present",
     ext_debug_marker => b"VK_EXT_debug_marker",
-    amd_shader_info => b"VK_AMD_shader_info",
+    khr_dedicated_allocation => b"VK_KHR_dedicated_allocation", // in core since Vulkan 1.1
+    khr_get_memory_requirements2 => b"VK_KHR_get_memory_requirements2", // in core since Vulkan 1.1
+    khr_get_physical_device_properties2 => b"VK_KHR_get_physical_device_properties2", // in core since Vulkan 1.1
+    khr_maintenance1 => b"VK_KHR_maintenance1", // in core since Vulkan 1.1
+    khr_sampler_mirror_clamp_to_edge => b"VK_KHR_sampler_mirror_clamp_to_edge",
+
+    // TODO: check which of these need vulkano support in order to be useful
+    // Included in Vulkan 1.1 core :
+    khr_maintenance2 => b"VK_KHR_maintenance2",
+    khr_maintenance3 => b"VK_KHR_maintenance3",
+    khr_multiview => b"VK_KHR_multiview",
+    khr_bind_memory2 => b"VK_KHR_bind_memory2",
+    khr_descriptor_update_template => b"VK_KHR_descriptor_update_template",
+    khr_relaxed_block_layout => b"VK_KHR_relaxed_block_layout",
+    khr_shader_draw_parameters => b"VK_KHR_shader_draw_parameters",
+    khr_storage_buffer_storage_class => b"VK_KHR_storage_buffer_storage_class",
+    khr_variable_pointers => b"VK_KHR_variable_pointers",
+    khr_16bit_storage => b"VK_KHR_16bit_storage",
+
+    /*
+    // TODO: support in vulkano
+    khr_device_group => b"VK_KHR_device_group", // pre Vulkan 1.1 : "VK_KHX_device_group"
+    khr_device_group_creation => b"VK_KHR_device_group_creation",
+    khr_external_fence => b"VK_KHR_external_fence",
+    khr_external_fence_capabilities => b"VK_KHR_external_fence_capabilities",
+    khr_external_memory => b"VK_KHR_external_memory",
+    khr_external_memory_capabilities => b"VK_KHR_external_memory_capabilities",
+    khr_external_semaphore => b"VK_KHR_external_semaphore",
+    khr_external_semaphore_capabilities => b"VK_KHR_external_semaphore_capabilities",
+
+    // TODO: use in vulkano during image creation to enable higher performance on some implementations
+    // new enum:   VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR
+    // new struct: VkImageFormatListCreateInfoKHR
+    khr_image_format_list => b"VK_KHR_image_format_list",
+    */
+
+    ext_depth_range_unrestricted => b"VK_EXT_depth_range_unrestricted",
+    ext_external_memory_host => b"VK_EXT_external_memory_host",
+    ext_global_priority => b"VK_EXT_global_priority",
+    ext_queue_family_foreign => b"VK_EXT_queue_family_foreign",
+    ext_sample_locations => b"VK_EXT_sample_locations",
+    ext_sampler_filter_minmax => b"VK_EXT_sampler_filter_minmax",
+    ext_shader_stencil_export => b"VK_EXT_shader_stencil_export",
+    ext_shader_subgroup_ballot => b"VK_EXT_shader_subgroup_ballot",
+    ext_shader_subgroup_vote => b"VK_EXT_shader_subgroup_vote",
+    ext_shader_viewport_index_layer => b"VK_EXT_shader_viewport_index_layer",
+
+    // AMD extensions :
+    amd_shader_info => b"VK_AMD_shader_info", // implemented in ComputePipeline
 }
 
 /// Error that can happen when loading the list of layers.
