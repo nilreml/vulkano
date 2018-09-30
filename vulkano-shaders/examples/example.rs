@@ -10,7 +10,7 @@
 extern crate vulkano_shaders;
 
 fn main() {
-    let shader = r#"
+  let shader = r#"
 #version 450
 
 layout(constant_id = 5) const int index = 2;
@@ -39,7 +39,7 @@ void main() {
 
 "#;
 
-    let content = vulkano_shaders::compile(shader, vulkano_shaders::ShaderKind::Fragment).unwrap();
-    let output = vulkano_shaders::reflect("Shader", content.as_binary()).unwrap();
-    println!("{}", output);
+  let content = vulkano_shaders::compile(shader, vulkano_shaders::ShaderKind::Fragment).unwrap();
+  let output = vulkano_shaders::reflect("Shader", content.as_binary()).unwrap();
+  println!("{}", output);
 }

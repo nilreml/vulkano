@@ -27,30 +27,29 @@ pub struct BufferlessDefinition;
 /// Note that the concrete type of the graphics pipeline using `BufferlessDefinition` must be
 /// visible to the command buffer builder for this to be usable.
 pub struct BufferlessVertices {
-    pub vertices: usize,
-    pub instances: usize,
+  pub vertices:  usize,
+  pub instances: usize,
 }
 
 unsafe impl VertexSource<BufferlessVertices> for BufferlessDefinition {
-    fn decode(&self, n: BufferlessVertices)
-              -> (Vec<Box<BufferAccess + Sync + Send + 'static>>, usize, usize) {
-        (Vec::new(), n.vertices, n.instances)
-    }
+  fn decode(&self, n: BufferlessVertices) -> (Vec<Box<BufferAccess + Sync + Send + 'static>>, usize, usize) {
+    (Vec::new(), n.vertices, n.instances)
+  }
 }
 
 unsafe impl<T> VertexSource<Vec<T>> for BufferlessDefinition {
-    fn decode<'l>(&self, _: Vec<T>)
-                  -> (Vec<Box<BufferAccess + Sync + Send + 'static>>, usize, usize) {
-        panic!("bufferless drawing should not be supplied with buffers")
-    }
+  fn decode<'l>(&self, _: Vec<T>) -> (Vec<Box<BufferAccess + Sync + Send + 'static>>, usize, usize) {
+    panic!("bufferless drawing should not be supplied with buffers")
+  }
 }
 
 unsafe impl<I> VertexDefinition<I> for BufferlessDefinition {
-    type BuffersIter = iter::Empty<(u32, usize, InputRate)>;
-    type AttribsIter = iter::Empty<(u32, u32, AttributeInfo)>;
-    fn definition(
-        &self, _: &I)
-        -> Result<(Self::BuffersIter, Self::AttribsIter), IncompatibleVertexDefinitionError> {
-        Ok((iter::empty(), iter::empty()))
-    }
+  type BuffersIter = iter::Empty<(u32, usize, InputRate)>;
+  type AttribsIter = iter::Empty<(u32, u32, AttributeInfo)>;
+  fn definition(
+    &self,
+    _: &I,
+  ) -> Result<(Self::BuffersIter, Self::AttribsIter), IncompatibleVertexDefinitionError> {
+    Ok((iter::empty(), iter::empty()))
+  }
 }

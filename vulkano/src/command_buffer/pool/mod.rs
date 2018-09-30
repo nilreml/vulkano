@@ -18,8 +18,8 @@
 
 use instance::QueueFamily;
 
-use OomError;
 use device::DeviceOwned;
+use OomError;
 
 pub use self::standard::StandardCommandPool;
 pub use self::sys::CommandPoolTrimError;
@@ -51,21 +51,21 @@ mod sys;
 /// operation must lock the pool.
 ///
 pub unsafe trait CommandPool: DeviceOwned {
-    /// See `alloc()`.
-    type Iter: Iterator<Item = Self::Builder>;
-    /// Represents a command buffer that has been allocated and that is currently being built.
-    type Builder: CommandPoolBuilderAlloc<Alloc = Self::Alloc>;
-    /// Represents a command buffer that has been allocated and that is pending execution or is
-    /// being executed.
-    type Alloc: CommandPoolAlloc;
+  /// See `alloc()`.
+  type Iter: Iterator<Item = Self::Builder>;
+  /// Represents a command buffer that has been allocated and that is currently being built.
+  type Builder: CommandPoolBuilderAlloc<Alloc = Self::Alloc>;
+  /// Represents a command buffer that has been allocated and that is pending execution or is
+  /// being executed.
+  type Alloc: CommandPoolAlloc;
 
-    /// Allocates command buffers from this pool.
-    ///
-    /// Returns an iterator that contains an bunch of allocated command buffers.
-    fn alloc(&self, secondary: bool, count: u32) -> Result<Self::Iter, OomError>;
+  /// Allocates command buffers from this pool.
+  ///
+  /// Returns an iterator that contains an bunch of allocated command buffers.
+  fn alloc(&self, secondary: bool, count: u32) -> Result<Self::Iter, OomError>;
 
-    /// Returns the queue family that this pool targets.
-    fn queue_family(&self) -> QueueFamily;
+  /// Returns the queue family that this pool targets.
+  fn queue_family(&self) -> QueueFamily;
 }
 
 /// A command buffer allocated from a pool and that can be recorded.
@@ -75,17 +75,17 @@ pub unsafe trait CommandPool: DeviceOwned {
 /// See `CommandPool` for information about safety.
 ///
 pub unsafe trait CommandPoolBuilderAlloc: DeviceOwned {
-    /// Return type of `into_alloc`.
-    type Alloc: CommandPoolAlloc;
+  /// Return type of `into_alloc`.
+  type Alloc: CommandPoolAlloc;
 
-    /// Returns the internal object that contains the command buffer.
-    fn inner(&self) -> &UnsafeCommandPoolAlloc;
+  /// Returns the internal object that contains the command buffer.
+  fn inner(&self) -> &UnsafeCommandPoolAlloc;
 
-    /// Turns this builder into a command buffer that is pending execution.
-    fn into_alloc(self) -> Self::Alloc;
+  /// Turns this builder into a command buffer that is pending execution.
+  fn into_alloc(self) -> Self::Alloc;
 
-    /// Returns the queue family that the pool targets.
-    fn queue_family(&self) -> QueueFamily;
+  /// Returns the queue family that the pool targets.
+  fn queue_family(&self) -> QueueFamily;
 }
 
 /// A command buffer allocated from a pool that has finished being recorded.
@@ -95,9 +95,9 @@ pub unsafe trait CommandPoolBuilderAlloc: DeviceOwned {
 /// See `CommandPool` for information about safety.
 ///
 pub unsafe trait CommandPoolAlloc: DeviceOwned {
-    /// Returns the internal object that contains the command buffer.
-    fn inner(&self) -> &UnsafeCommandPoolAlloc;
+  /// Returns the internal object that contains the command buffer.
+  fn inner(&self) -> &UnsafeCommandPoolAlloc;
 
-    /// Returns the queue family that the pool targets.
-    fn queue_family(&self) -> QueueFamily;
+  /// Returns the queue family that the pool targets.
+  fn queue_family(&self) -> QueueFamily;
 }

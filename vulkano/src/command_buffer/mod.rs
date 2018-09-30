@@ -111,54 +111,54 @@ mod traits;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct DrawIndirectCommand {
-    pub vertex_count: u32,
-    pub instance_count: u32,
-    pub first_vertex: u32,
-    pub first_instance: u32,
+  pub vertex_count:   u32,
+  pub instance_count: u32,
+  pub first_vertex:   u32,
+  pub first_instance: u32,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct DrawIndexedIndirectCommand {
-    pub index_count: u32,
-    pub instance_count: u32,
-    pub first_index: u32,
-    pub vertex_offset: u32,
-    pub first_instance: u32,
+  pub index_count:    u32,
+  pub instance_count: u32,
+  pub first_index:    u32,
+  pub vertex_offset:  u32,
+  pub first_instance: u32,
 }
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct DispatchIndirectCommand {
-    pub x: u32,
-    pub y: u32,
-    pub z: u32,
+  pub x: u32,
+  pub y: u32,
+  pub z: u32,
 }
 
 /// The dynamic state to use for a draw command.
 // TODO: probably not the right location
 #[derive(Debug, Clone)]
 pub struct DynamicState {
-    pub line_width: Option<f32>,
-    pub viewports: Option<Vec<Viewport>>,
-    pub scissors: Option<Vec<Scissor>>,
-    // TODO: missing fields
+  pub line_width: Option<f32>,
+  pub viewports:  Option<Vec<Viewport>>,
+  pub scissors:   Option<Vec<Scissor>>,
+  // TODO: missing fields
 }
 
 impl DynamicState {
-    #[inline]
-    pub fn none() -> DynamicState {
-        DynamicState {
-            line_width: None,
-            viewports: None,
-            scissors: None,
-        }
+  #[inline]
+  pub fn none() -> DynamicState {
+    DynamicState {
+      line_width: None,
+      viewports:  None,
+      scissors:   None,
     }
+  }
 }
 
 impl Default for DynamicState {
-    #[inline]
-    fn default() -> DynamicState {
-        DynamicState::none()
-    }
+  #[inline]
+  fn default() -> DynamicState {
+    DynamicState::none()
+  }
 }

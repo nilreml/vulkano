@@ -20,58 +20,62 @@ use sync::Semaphore;
 /// However you can convert it into another builder prototype through the `Into` trait.
 #[derive(Debug)]
 pub struct SubmitSemaphoresWaitBuilder<'a> {
-    semaphores: SmallVec<[&'a Semaphore; 8]>,
+  semaphores: SmallVec<[&'a Semaphore; 8]>,
 }
 
 impl<'a> SubmitSemaphoresWaitBuilder<'a> {
-    /// Builds a new empty `SubmitSemaphoresWaitBuilder`.
-    #[inline]
-    pub fn new() -> SubmitSemaphoresWaitBuilder<'a> {
-        SubmitSemaphoresWaitBuilder { semaphores: SmallVec::new() }
+  /// Builds a new empty `SubmitSemaphoresWaitBuilder`.
+  #[inline]
+  pub fn new() -> SubmitSemaphoresWaitBuilder<'a> {
+    SubmitSemaphoresWaitBuilder {
+      semaphores: SmallVec::new(),
     }
+  }
 
-    /// Adds an operation that waits on a semaphore.
-    ///
-    /// The semaphore must be signaled by a previous submission.
-    #[inline]
-    pub unsafe fn add_wait_semaphore(&mut self, semaphore: &'a Semaphore) {
-        self.semaphores.push(semaphore);
-    }
+  /// Adds an operation that waits on a semaphore.
+  ///
+  /// The semaphore must be signaled by a previous submission.
+  #[inline]
+  pub unsafe fn add_wait_semaphore(&mut self, semaphore: &'a Semaphore) {
+    self.semaphores.push(semaphore);
+  }
 
-    /// Merges this builder with another builder.
-    #[inline]
-    pub fn merge(&mut self, mut other: SubmitSemaphoresWaitBuilder<'a>) {
-        self.semaphores.extend(other.semaphores.drain());
-    }
+  /// Merges this builder with another builder.
+  #[inline]
+  pub fn merge(&mut self, mut other: SubmitSemaphoresWaitBuilder<'a>) {
+    self.semaphores.extend(other.semaphores.drain());
+  }
 }
 
 impl<'a> Into<SubmitCommandBufferBuilder<'a>> for SubmitSemaphoresWaitBuilder<'a> {
-    #[inline]
-    fn into(mut self) -> SubmitCommandBufferBuilder<'a> {
-        unsafe {
-            let mut builder = SubmitCommandBufferBuilder::new();
-            for sem in self.semaphores.drain() {
-                builder.add_wait_semaphore(sem,
-                                           PipelineStages {
-                                               // TODO: correct stages ; hard
-                                               all_commands: true,
-                                               ..PipelineStages::none()
-                                           });
-            }
-            builder
-        }
+  #[inline]
+  fn into(mut self) -> SubmitCommandBufferBuilder<'a> {
+    unsafe {
+      let mut builder = SubmitCommandBufferBuilder::new();
+      for sem in self.semaphores.drain() {
+        builder.add_wait_semaphore(
+          sem,
+          PipelineStages {
+            // TODO: correct stages ; hard
+            all_commands: true,
+            ..PipelineStages::none()
+          },
+        );
+      }
+      builder
     }
+  }
 }
 
 impl<'a> Into<SubmitPresentBuilder<'a>> for SubmitSemaphoresWaitBuilder<'a> {
-    #[inline]
-    fn into(mut self) -> SubmitPresentBuilder<'a> {
-        unsafe {
-            let mut builder = SubmitPresentBuilder::new();
-            for sem in self.semaphores.drain() {
-                builder.add_wait_semaphore(sem);
-            }
-            builder
-        }
+  #[inline]
+  fn into(mut self) -> SubmitPresentBuilder<'a> {
+    unsafe {
+      let mut builder = SubmitPresentBuilder::new();
+      for sem in self.semaphores.drain() {
+        builder.add_wait_semaphore(sem);
+      }
+      builder
     }
+  }
 }

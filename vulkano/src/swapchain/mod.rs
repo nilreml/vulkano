@@ -317,16 +317,16 @@ pub use self::present_region::RectangleLayer;
 pub use self::surface::CapabilitiesError;
 pub use self::surface::Surface;
 pub use self::surface::SurfaceCreationError;
+pub use self::swapchain::acquire_next_image;
+pub use self::swapchain::acquire_next_image_raw;
+pub use self::swapchain::present;
+pub use self::swapchain::present_incremental;
 pub use self::swapchain::AcquireError;
 pub use self::swapchain::AcquiredImage;
 pub use self::swapchain::PresentFuture;
 pub use self::swapchain::Swapchain;
 pub use self::swapchain::SwapchainAcquireFuture;
 pub use self::swapchain::SwapchainCreationError;
-pub use self::swapchain::acquire_next_image;
-pub use self::swapchain::acquire_next_image_raw;
-pub use self::swapchain::present;
-pub use self::swapchain::present_incremental;
 
 mod capabilities;
 pub mod display;
@@ -338,5 +338,5 @@ mod swapchain;
 /// flag.
 // TODO: use pub(crate) maybe?
 unsafe trait SurfaceSwapchainLock {
-    fn flag(&self) -> &AtomicBool;
+  fn flag(&self) -> &AtomicBool;
 }

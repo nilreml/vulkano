@@ -28,28 +28,28 @@ use descriptor::pipeline_layout::PipelineLayoutDescPcRange;
 pub struct EmptyPipelineDesc;
 
 unsafe impl PipelineLayoutDesc for EmptyPipelineDesc {
-    #[inline]
-    fn num_sets(&self) -> usize {
-        0
-    }
+  #[inline]
+  fn num_sets(&self) -> usize {
+    0
+  }
 
-    #[inline]
-    fn num_bindings_in_set(&self, _: usize) -> Option<usize> {
-        None
-    }
+  #[inline]
+  fn num_bindings_in_set(&self, _: usize) -> Option<usize> {
+    None
+  }
 
-    #[inline]
-    fn descriptor(&self, _: usize, _: usize) -> Option<DescriptorDesc> {
-        None
-    }
+  #[inline]
+  fn descriptor(&self, _: usize, _: usize) -> Option<DescriptorDesc> {
+    None
+  }
 
-    #[inline]
-    fn num_push_constants_ranges(&self) -> usize {
-        0
-    }
+  #[inline]
+  fn num_push_constants_ranges(&self) -> usize {
+    0
+  }
 
-    #[inline]
-    fn push_constants_range(&self, _: usize) -> Option<PipelineLayoutDescPcRange> {
-        None
-    }
+  #[inline]
+  fn push_constants_range(&self, _: usize) -> Option<PipelineLayoutDescPcRange> {
+    None
+  }
 }

@@ -33,20 +33,20 @@ mod semaphores_wait;
 /// Contains all the possible submission builders.
 #[derive(Debug)]
 pub enum SubmitAnyBuilder<'a> {
-    Empty,
-    SemaphoresWait(SubmitSemaphoresWaitBuilder<'a>),
-    CommandBuffer(SubmitCommandBufferBuilder<'a>),
-    QueuePresent(SubmitPresentBuilder<'a>),
-    BindSparse(SubmitBindSparseBuilder<'a>),
+  Empty,
+  SemaphoresWait(SubmitSemaphoresWaitBuilder<'a>),
+  CommandBuffer(SubmitCommandBufferBuilder<'a>),
+  QueuePresent(SubmitPresentBuilder<'a>),
+  BindSparse(SubmitBindSparseBuilder<'a>),
 }
 
 impl<'a> SubmitAnyBuilder<'a> {
-    /// Returns true if equal to `SubmitAnyBuilder::Empty`.
-    #[inline]
-    pub fn is_empty(&self) -> bool {
-        match self {
-            &SubmitAnyBuilder::Empty => true,
-            _ => false,
-        }
+  /// Returns true if equal to `SubmitAnyBuilder::Empty`.
+  #[inline]
+  pub fn is_empty(&self) -> bool {
+    match self {
+      &SubmitAnyBuilder::Empty => true,
+      _ => false,
     }
+  }
 }

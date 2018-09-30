@@ -13,61 +13,62 @@ use descriptor::descriptor_set::DescriptorSetDesc;
 
 /// A collection of descriptor set objects.
 pub unsafe trait DescriptorSetsCollection {
-    fn into_vec(self) -> Vec<Box<DescriptorSet + Send + Sync>>;
+  fn into_vec(self) -> Vec<Box<DescriptorSet + Send + Sync>>;
 
-    /// Returns the number of descriptors in the set. Includes possibly empty descriptors.
-    ///
-    /// Returns `None` if the set is out of range.
-    // TODO: remove ; user should just use `into_vec` instead
-    fn num_bindings_in_set(&self, set: usize) -> Option<usize>;
+  /// Returns the number of descriptors in the set. Includes possibly empty descriptors.
+  ///
+  /// Returns `None` if the set is out of range.
+  // TODO: remove ; user should just use `into_vec` instead
+  fn num_bindings_in_set(&self, set: usize) -> Option<usize>;
 
-    /// Returns the descriptor for the given binding of the given set.
-    ///
-    /// Returns `None` if out of range.
-    // TODO: remove ; user should just use `into_vec` instead
-    fn descriptor(&self, set: usize, binding: usize) -> Option<DescriptorDesc>;
+  /// Returns the descriptor for the given binding of the given set.
+  ///
+  /// Returns `None` if out of range.
+  // TODO: remove ; user should just use `into_vec` instead
+  fn descriptor(&self, set: usize, binding: usize) -> Option<DescriptorDesc>;
 }
 
 unsafe impl DescriptorSetsCollection for () {
-    #[inline]
-    fn into_vec(self) -> Vec<Box<DescriptorSet + Send + Sync>> {
-        vec![]
-    }
+  #[inline]
+  fn into_vec(self) -> Vec<Box<DescriptorSet + Send + Sync>> {
+    vec![]
+  }
 
-    #[inline]
-    fn num_bindings_in_set(&self, _: usize) -> Option<usize> {
-        None
-    }
+  #[inline]
+  fn num_bindings_in_set(&self, _: usize) -> Option<usize> {
+    None
+  }
 
-    #[inline]
-    fn descriptor(&self, _: usize, _: usize) -> Option<DescriptorDesc> {
-        None
-    }
+  #[inline]
+  fn descriptor(&self, _: usize, _: usize) -> Option<DescriptorDesc> {
+    None
+  }
 }
 
 unsafe impl<T> DescriptorSetsCollection for T
-    where T: DescriptorSet + Send + Sync + 'static
+where
+  T: DescriptorSet + Send + Sync + 'static,
 {
-    #[inline]
-    fn into_vec(self) -> Vec<Box<DescriptorSet + Send + Sync>> {
-        vec![Box::new(self) as Box<_>]
-    }
+  #[inline]
+  fn into_vec(self) -> Vec<Box<DescriptorSet + Send + Sync>> {
+    vec![Box::new(self) as Box<_>]
+  }
 
-    #[inline]
-    fn num_bindings_in_set(&self, set: usize) -> Option<usize> {
-        match set {
-            0 => Some(self.num_bindings()),
-            _ => None,
-        }
+  #[inline]
+  fn num_bindings_in_set(&self, set: usize) -> Option<usize> {
+    match set {
+      0 => Some(self.num_bindings()),
+      _ => None,
     }
+  }
 
-    #[inline]
-    fn descriptor(&self, set: usize, binding: usize) -> Option<DescriptorDesc> {
-        match set {
-            0 => self.descriptor(binding),
-            _ => None,
-        }
+  #[inline]
+  fn descriptor(&self, set: usize, binding: usize) -> Option<DescriptorDesc> {
+    match set {
+      0 => self.descriptor(binding),
+      _ => None,
     }
+  }
 }
 
 macro_rules! impl_collection {
@@ -139,29 +140,4 @@ macro_rules! impl_collection {
     ($i:ident) => ();
 }
 
-impl_collection!(Z,
-                 Y,
-                 X,
-                 W,
-                 V,
-                 U,
-                 T,
-                 S,
-                 R,
-                 Q,
-                 P,
-                 O,
-                 N,
-                 M,
-                 L,
-                 K,
-                 J,
-                 I,
-                 H,
-                 G,
-                 F,
-                 E,
-                 D,
-                 C,
-                 B,
-                 A);
+impl_collection!(Z, Y, X, W, V, U, T, S, R, Q, P, O, N, M, L, K, J, I, H, G, F, E, D, C, B, A);
