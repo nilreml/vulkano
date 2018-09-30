@@ -15,14 +15,14 @@ use std::iter::FromIterator;
 use std::ptr;
 use std::str;
 
+use check_errors;
+use instance::loader;
+use instance::loader::LoadingError;
+use instance::PhysicalDevice;
+use vk;
 use Error;
 use OomError;
 use VulkanObject;
-use check_errors;
-use instance::PhysicalDevice;
-use instance::loader;
-use instance::loader::LoadingError;
-use vk;
 
 macro_rules! extensions {
     ($sname:ident, $rawname:ident, $($ext:ident => $s:expr,)*) => (
@@ -405,64 +405,60 @@ device_extensions! {
 /// Error that can happen when loading the list of layers.
 #[derive(Clone, Debug)]
 pub enum SupportedExtensionsError {
-    /// Failed to load the Vulkan shared library.
-    LoadingError(LoadingError),
-    /// Not enough memory.
-    OomError(OomError),
+  /// Failed to load the Vulkan shared library.
+  LoadingError(LoadingError),
+  /// Not enough memory.
+  OomError(OomError),
 }
 
 impl error::Error for SupportedExtensionsError {
-    #[inline]
-    fn description(&self) -> &str {
-        match *self {
-            SupportedExtensionsError::LoadingError(_) => "failed to load the Vulkan shared library",
-            SupportedExtensionsError::OomError(_) => "not enough memory available",
-        }
+  #[inline]
+  fn description(&self) -> &str {
+    match *self {
+      SupportedExtensionsError::LoadingError(_) => "failed to load the Vulkan shared library",
+      SupportedExtensionsError::OomError(_) => "not enough memory available",
     }
+  }
 
-    #[inline]
-    fn cause(&self) -> Option<&error::Error> {
-        match *self {
-            SupportedExtensionsError::LoadingError(ref err) => Some(err),
-            SupportedExtensionsError::OomError(ref err) => Some(err),
-        }
+  #[inline]
+  fn cause(&self) -> Option<&error::Error> {
+    match *self {
+      SupportedExtensionsError::LoadingError(ref err) => Some(err),
+      SupportedExtensionsError::OomError(ref err) => Some(err),
     }
+  }
 }
 
 impl fmt::Display for SupportedExtensionsError {
-    #[inline]
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", error::Error::description(self))
-    }
+  #[inline]
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    write!(fmt, "{}", error::Error::description(self))
+  }
 }
 
 impl From<OomError> for SupportedExtensionsError {
-    #[inline]
-    fn from(err: OomError) -> SupportedExtensionsError {
-        SupportedExtensionsError::OomError(err)
-    }
+  #[inline]
+  fn from(err: OomError) -> SupportedExtensionsError {
+    SupportedExtensionsError::OomError(err)
+  }
 }
 
 impl From<LoadingError> for SupportedExtensionsError {
-    #[inline]
-    fn from(err: LoadingError) -> SupportedExtensionsError {
-        SupportedExtensionsError::LoadingError(err)
-    }
+  #[inline]
+  fn from(err: LoadingError) -> SupportedExtensionsError {
+    SupportedExtensionsError::LoadingError(err)
+  }
 }
 
 impl From<Error> for SupportedExtensionsError {
-    #[inline]
-    fn from(err: Error) -> SupportedExtensionsError {
-        match err {
-            err @ Error::OutOfHostMemory => {
-                SupportedExtensionsError::OomError(OomError::from(err))
-            },
-            err @ Error::OutOfDeviceMemory => {
-                SupportedExtensionsError::OomError(OomError::from(err))
-            },
-            _ => panic!("unexpected error: {:?}", err),
-        }
+  #[inline]
+  fn from(err: Error) -> SupportedExtensionsError {
+    match err {
+      err @ Error::OutOfHostMemory => SupportedExtensionsError::OomError(OomError::from(err)),
+      err @ Error::OutOfDeviceMemory => SupportedExtensionsError::OomError(OomError::from(err)),
+      _ => panic!("unexpected error: {:?}", err),
     }
+  }
 }
 
 /// This helper type can only be instantiated inside this module.
@@ -473,15 +469,15 @@ pub struct Unbuildable(());
 
 #[cfg(test)]
 mod tests {
-    use instance::{DeviceExtensions, RawDeviceExtensions};
-    use instance::{InstanceExtensions, RawInstanceExtensions};
+  use instance::{DeviceExtensions, RawDeviceExtensions};
+  use instance::{InstanceExtensions, RawInstanceExtensions};
 
-    #[test]
-    fn empty_extensions() {
-        let i: RawInstanceExtensions = (&InstanceExtensions::none()).into();
-        assert!(i.iter().next().is_none());
+  #[test]
+  fn empty_extensions() {
+    let i: RawInstanceExtensions = (&InstanceExtensions::none()).into();
+    assert!(i.iter().next().is_none());
 
-        let d: RawDeviceExtensions = (&DeviceExtensions::none()).into();
-        assert!(d.iter().next().is_none());
-    }
+    let d: RawDeviceExtensions = (&DeviceExtensions::none()).into();
+    assert!(d.iter().next().is_none());
+  }
 }

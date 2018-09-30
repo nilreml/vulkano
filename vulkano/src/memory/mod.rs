@@ -106,36 +106,36 @@ pub mod pool;
 /// to a resource.
 #[derive(Debug, Copy, Clone)]
 pub struct MemoryRequirements {
-    /// Number of bytes of memory required.
-    pub size: usize,
+  /// Number of bytes of memory required.
+  pub size: usize,
 
-    /// Alignment of the requirement buffer. The base memory address must be a multiple
-    /// of this value.
-    pub alignment: usize,
+  /// Alignment of the requirement buffer. The base memory address must be a multiple
+  /// of this value.
+  pub alignment: usize,
 
-    /// Indicates which memory types can be used. Each bit that is set to 1 means that the memory
-    /// type whose index is the same as the position of the bit can be used.
-    pub memory_type_bits: u32,
+  /// Indicates which memory types can be used. Each bit that is set to 1 means that the memory
+  /// type whose index is the same as the position of the bit can be used.
+  pub memory_type_bits: u32,
 
-    /// True if the implementation prefers to use dedicated allocations (in other words, allocate
-    /// a whole block of memory dedicated to this resource alone). If the
-    /// `khr_get_memory_requirements2` extension isn't enabled, then this will be false.
-    ///
-    /// > **Note**: As its name says, using a dedicated allocation is an optimization and not a
-    /// > requirement.
-    pub prefer_dedicated: bool,
+  /// True if the implementation prefers to use dedicated allocations (in other words, allocate
+  /// a whole block of memory dedicated to this resource alone). If the
+  /// `khr_get_memory_requirements2` extension isn't enabled, then this will be false.
+  ///
+  /// > **Note**: As its name says, using a dedicated allocation is an optimization and not a
+  /// > requirement.
+  pub prefer_dedicated: bool,
 }
 
 impl MemoryRequirements {
-    #[inline]
-    pub(crate) fn from_vulkan_reqs(reqs: vk::MemoryRequirements) -> MemoryRequirements {
-        MemoryRequirements {
-            size: reqs.size as usize,
-            alignment: reqs.alignment as usize,
-            memory_type_bits: reqs.memoryTypeBits,
-            prefer_dedicated: false,
-        }
+  #[inline]
+  pub(crate) fn from_vulkan_reqs(reqs: vk::MemoryRequirements) -> MemoryRequirements {
+    MemoryRequirements {
+      size:             reqs.size as usize,
+      alignment:        reqs.alignment as usize,
+      memory_type_bits: reqs.memoryTypeBits,
+      prefer_dedicated: false,
     }
+  }
 }
 
 /// Indicates whether we want to allocate memory for a specific resource, or in a generic way.
@@ -147,65 +147,65 @@ impl MemoryRequirements {
 /// one that was passed with the enumeration.
 #[derive(Debug, Copy, Clone)]
 pub enum DedicatedAlloc<'a> {
-    /// Generic allocation.
-    None,
-    /// Allocation dedicated to a buffer.
-    Buffer(&'a UnsafeBuffer),
-    /// Allocation dedicated to an image.
-    Image(&'a UnsafeImage),
+  /// Generic allocation.
+  None,
+  /// Allocation dedicated to a buffer.
+  Buffer(&'a UnsafeBuffer),
+  /// Allocation dedicated to an image.
+  Image(&'a UnsafeImage),
 }
 
 /// Trait for types of data that can be mapped.
 // TODO: move to `buffer` module
 pub unsafe trait Content {
-    /// Builds a pointer to this type from a raw pointer.
-    fn ref_from_ptr<'a>(ptr: *mut c_void, size: usize) -> Option<*mut Self>;
+  /// Builds a pointer to this type from a raw pointer.
+  fn ref_from_ptr<'a>(ptr: *mut c_void, size: usize) -> Option<*mut Self>;
 
-    /// Returns true if the size is suitable to store a type like this.
-    fn is_size_suitable(usize) -> bool;
+  /// Returns true if the size is suitable to store a type like this.
+  fn is_size_suitable(usize) -> bool;
 
-    /// Returns the size of an individual element.
-    fn indiv_size() -> usize;
+  /// Returns the size of an individual element.
+  fn indiv_size() -> usize;
 }
 
 unsafe impl<T> Content for T {
-    #[inline]
-    fn ref_from_ptr<'a>(ptr: *mut c_void, size: usize) -> Option<*mut T> {
-        if size < mem::size_of::<T>() {
-            return None;
-        }
-
-        Some(ptr as *mut T)
+  #[inline]
+  fn ref_from_ptr<'a>(ptr: *mut c_void, size: usize) -> Option<*mut T> {
+    if size < mem::size_of::<T>() {
+      return None;
     }
 
-    #[inline]
-    fn is_size_suitable(size: usize) -> bool {
-        size == mem::size_of::<T>()
-    }
+    Some(ptr as *mut T)
+  }
 
-    #[inline]
-    fn indiv_size() -> usize {
-        mem::size_of::<T>()
-    }
+  #[inline]
+  fn is_size_suitable(size: usize) -> bool {
+    size == mem::size_of::<T>()
+  }
+
+  #[inline]
+  fn indiv_size() -> usize {
+    mem::size_of::<T>()
+  }
 }
 
 unsafe impl<T> Content for [T] {
-    #[inline]
-    fn ref_from_ptr<'a>(ptr: *mut c_void, size: usize) -> Option<*mut [T]> {
-        let ptr = ptr as *mut T;
-        let size = size / mem::size_of::<T>();
-        Some(unsafe { slice::from_raw_parts_mut(&mut *ptr, size) as *mut [T] })
-    }
+  #[inline]
+  fn ref_from_ptr<'a>(ptr: *mut c_void, size: usize) -> Option<*mut [T]> {
+    let ptr = ptr as *mut T;
+    let size = size / mem::size_of::<T>();
+    Some(unsafe { slice::from_raw_parts_mut(&mut *ptr, size) as *mut [T] })
+  }
 
-    #[inline]
-    fn is_size_suitable(size: usize) -> bool {
-        size % mem::size_of::<T>() == 0
-    }
+  #[inline]
+  fn is_size_suitable(size: usize) -> bool {
+    size % mem::size_of::<T>() == 0
+  }
 
-    #[inline]
-    fn indiv_size() -> usize {
-        mem::size_of::<T>()
-    }
+  #[inline]
+  fn indiv_size() -> usize {
+    mem::size_of::<T>()
+  }
 }
 
 /*

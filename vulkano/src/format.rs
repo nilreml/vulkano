@@ -102,8 +102,8 @@
 //! // TODO: storage formats
 //!
 
-use std::{error, fmt, mem};
 use std::vec::IntoIter as VecIntoIter;
+use std::{error, fmt, mem};
 
 use half::f16;
 
@@ -116,61 +116,61 @@ use vk;
 /// This trait is unsafe to implement because bad things will happen if `ty()` returns a wrong
 /// value.
 pub unsafe trait Data {
-    /// Returns the type of the data from an enum.
-    fn ty() -> Format;
+  /// Returns the type of the data from an enum.
+  fn ty() -> Format;
 
-    // TODO "is_supported" functions that redirect to `Self::ty().is_supported()`
+  // TODO "is_supported" functions that redirect to `Self::ty().is_supported()`
 }
 
 // TODO: that's just an example ; implement for all common data types
 unsafe impl Data for i8 {
-    #[inline]
-    fn ty() -> Format {
-        Format::R8Sint
-    }
+  #[inline]
+  fn ty() -> Format {
+    Format::R8Sint
+  }
 }
 unsafe impl Data for u8 {
-    #[inline]
-    fn ty() -> Format {
-        Format::R8Uint
-    }
+  #[inline]
+  fn ty() -> Format {
+    Format::R8Uint
+  }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct IncompatiblePixelsType;
 
 impl error::Error for IncompatiblePixelsType {
-    #[inline]
-    fn description(&self) -> &str {
-        "supplied pixels' type is incompatible with this format"
-    }
+  #[inline]
+  fn description(&self) -> &str {
+    "supplied pixels' type is incompatible with this format"
+  }
 }
 
 impl fmt::Display for IncompatiblePixelsType {
-    #[inline]
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", error::Error::description(self))
-    }
+  #[inline]
+  fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    write!(fmt, "{}", error::Error::description(self))
+  }
 }
 
 pub unsafe trait AcceptsPixels<T> {
-    /// Returns an error if `T` cannot be used as a source of pixels for `Self`.
-    fn ensure_accepts(&self) -> Result<(), IncompatiblePixelsType>;
+  /// Returns an error if `T` cannot be used as a source of pixels for `Self`.
+  fn ensure_accepts(&self) -> Result<(), IncompatiblePixelsType>;
 
-    /// The number of `T`s which make up a single pixel.
-    ///
-    /// ```
-    /// use vulkano::format::{AcceptsPixels, R8G8B8A8Srgb};
-    /// assert_eq!(<R8G8B8A8Srgb as AcceptsPixels<[u8; 4]>>::rate(&R8G8B8A8Srgb), 1);
-    /// assert_eq!(<R8G8B8A8Srgb as AcceptsPixels<u8>>::rate(&R8G8B8A8Srgb), 4);
-    /// ```
-    ///
-    /// # Panics
-    ///
-    /// May panic if `ensure_accepts` would not return `Ok(())`.
-    fn rate(&self) -> u32 {
-        1
-    }
+  /// The number of `T`s which make up a single pixel.
+  ///
+  /// ```
+  /// use vulkano::format::{AcceptsPixels, R8G8B8A8Srgb};
+  /// assert_eq!(<R8G8B8A8Srgb as AcceptsPixels<[u8; 4]>>::rate(&R8G8B8A8Srgb), 1);
+  /// assert_eq!(<R8G8B8A8Srgb as AcceptsPixels<u8>>::rate(&R8G8B8A8Srgb), 4);
+  /// ```
+  ///
+  /// # Panics
+  ///
+  /// May panic if `ensure_accepts` would not return `Ok(())`.
+  fn rate(&self) -> u32 {
+    1
+  }
 }
 
 macro_rules! formats {
@@ -186,7 +186,7 @@ macro_rules! formats {
 
         impl Format {
             /*pub fn is_supported_for_vertex_attributes(&self) -> bool {
-                
+
             }
 
             .. other functions ..
@@ -607,125 +607,125 @@ formats! {
 }
 
 pub unsafe trait FormatDesc {
-    type ClearValue;
+  type ClearValue;
 
-    fn format(&self) -> Format;
+  fn format(&self) -> Format;
 
-    fn decode_clear_value(&self, Self::ClearValue) -> ClearValue;
+  fn decode_clear_value(&self, Self::ClearValue) -> ClearValue;
 }
 
 unsafe impl FormatDesc for Format {
-    type ClearValue = ClearValue;
+  type ClearValue = ClearValue;
 
-    #[inline]
-    fn format(&self) -> Format {
-        *self
-    }
+  #[inline]
+  fn format(&self) -> Format {
+    *self
+  }
 
-    fn decode_clear_value(&self, value: Self::ClearValue) -> ClearValue {
-        match (self.ty(), value) {
-            (FormatTy::Float, f @ ClearValue::Float(_)) => f,
-            (FormatTy::Compressed, f @ ClearValue::Float(_)) => f,
-            (FormatTy::Sint, f @ ClearValue::Int(_)) => f,
-            (FormatTy::Uint, f @ ClearValue::Uint(_)) => f,
-            (FormatTy::Depth, f @ ClearValue::Depth(_)) => f,
-            (FormatTy::Stencil, f @ ClearValue::Stencil(_)) => f,
-            (FormatTy::DepthStencil, f @ ClearValue::DepthStencil(_)) => f,
-            _ => panic!("Wrong clear value"),
-        }
+  fn decode_clear_value(&self, value: Self::ClearValue) -> ClearValue {
+    match (self.ty(), value) {
+      (FormatTy::Float, f @ ClearValue::Float(_)) => f,
+      (FormatTy::Compressed, f @ ClearValue::Float(_)) => f,
+      (FormatTy::Sint, f @ ClearValue::Int(_)) => f,
+      (FormatTy::Uint, f @ ClearValue::Uint(_)) => f,
+      (FormatTy::Depth, f @ ClearValue::Depth(_)) => f,
+      (FormatTy::Stencil, f @ ClearValue::Stencil(_)) => f,
+      (FormatTy::DepthStencil, f @ ClearValue::DepthStencil(_)) => f,
+      _ => panic!("Wrong clear value"),
     }
+  }
 }
 
 /// Trait for types that can possibly describe a float attachment.
 pub unsafe trait PossibleFloatFormatDesc: FormatDesc {
-    /// Returns true if the format is a float format.
-    fn is_float(&self) -> bool;
+  /// Returns true if the format is a float format.
+  fn is_float(&self) -> bool;
 }
 
 unsafe impl PossibleFloatFormatDesc for Format {
-    #[inline]
-    fn is_float(&self) -> bool {
-        self.ty() == FormatTy::Float
-    }
+  #[inline]
+  fn is_float(&self) -> bool {
+    self.ty() == FormatTy::Float
+  }
 }
 
 pub unsafe trait PossibleUintFormatDesc: FormatDesc {
-    fn is_uint(&self) -> bool;
+  fn is_uint(&self) -> bool;
 }
 
 unsafe impl PossibleUintFormatDesc for Format {
-    #[inline]
-    fn is_uint(&self) -> bool {
-        self.ty() == FormatTy::Uint
-    }
+  #[inline]
+  fn is_uint(&self) -> bool {
+    self.ty() == FormatTy::Uint
+  }
 }
 
 pub unsafe trait PossibleSintFormatDesc: FormatDesc {
-    fn is_sint(&self) -> bool;
+  fn is_sint(&self) -> bool;
 }
 
 unsafe impl PossibleSintFormatDesc for Format {
-    #[inline]
-    fn is_sint(&self) -> bool {
-        self.ty() == FormatTy::Sint
-    }
+  #[inline]
+  fn is_sint(&self) -> bool {
+    self.ty() == FormatTy::Sint
+  }
 }
 
 pub unsafe trait PossibleDepthFormatDesc: FormatDesc {
-    fn is_depth(&self) -> bool;
+  fn is_depth(&self) -> bool;
 }
 
 unsafe impl PossibleDepthFormatDesc for Format {
-    #[inline]
-    fn is_depth(&self) -> bool {
-        self.ty() == FormatTy::Depth
-    }
+  #[inline]
+  fn is_depth(&self) -> bool {
+    self.ty() == FormatTy::Depth
+  }
 }
 
 pub unsafe trait PossibleStencilFormatDesc: FormatDesc {
-    fn is_stencil(&self) -> bool;
+  fn is_stencil(&self) -> bool;
 }
 
 unsafe impl PossibleStencilFormatDesc for Format {
-    #[inline]
-    fn is_stencil(&self) -> bool {
-        self.ty() == FormatTy::Stencil
-    }
+  #[inline]
+  fn is_stencil(&self) -> bool {
+    self.ty() == FormatTy::Stencil
+  }
 }
 
 pub unsafe trait PossibleDepthStencilFormatDesc: FormatDesc {
-    fn is_depth_stencil(&self) -> bool;
+  fn is_depth_stencil(&self) -> bool;
 }
 
 unsafe impl PossibleDepthStencilFormatDesc for Format {
-    #[inline]
-    fn is_depth_stencil(&self) -> bool {
-        self.ty() == FormatTy::DepthStencil
-    }
+  #[inline]
+  fn is_depth_stencil(&self) -> bool {
+    self.ty() == FormatTy::DepthStencil
+  }
 }
 
 pub unsafe trait PossibleCompressedFormatDesc: FormatDesc {
-    fn is_compressed(&self) -> bool;
+  fn is_compressed(&self) -> bool;
 }
 
 unsafe impl PossibleCompressedFormatDesc for Format {
-    #[inline]
-    fn is_compressed(&self) -> bool {
-        self.ty() == FormatTy::Compressed
-    }
+  #[inline]
+  fn is_compressed(&self) -> bool {
+    self.ty() == FormatTy::Compressed
+  }
 }
 
 /// Trait for types that can possibly describe a float or compressed attachment.
 pub unsafe trait PossibleFloatOrCompressedFormatDesc: FormatDesc {
-    /// Returns true if the format is a float or compressed format.
-    fn is_float_or_compressed(&self) -> bool;
+  /// Returns true if the format is a float or compressed format.
+  fn is_float_or_compressed(&self) -> bool;
 }
 
 unsafe impl PossibleFloatOrCompressedFormatDesc for Format {
-    #[inline]
-    fn is_float_or_compressed(&self) -> bool {
-        self.ty() == FormatTy::Float || self.ty() == FormatTy::Compressed
-    }
+  #[inline]
+  fn is_float_or_compressed(&self) -> bool {
+    self.ty() == FormatTy::Float || self.ty() == FormatTy::Compressed
+  }
 }
 
 macro_rules! impl_pixel {
@@ -762,165 +762,164 @@ impl_pixel! {
 }
 
 pub unsafe trait StrongStorage: FormatDesc {
-    type Pixel: Copy;
+  type Pixel: Copy;
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum FormatTy {
-    Float,
-    Uint,
-    Sint,
-    Depth,
-    Stencil,
-    DepthStencil,
-    Compressed,
+  Float,
+  Uint,
+  Sint,
+  Depth,
+  Stencil,
+  DepthStencil,
+  Compressed,
 }
 
 impl FormatTy {
-    /// Returns true if `Depth`, `Stencil`, `DepthStencil`. False otherwise.
-    #[inline]
-    pub fn is_depth_and_or_stencil(&self) -> bool {
-        match *self {
-            FormatTy::Depth => true,
-            FormatTy::Stencil => true,
-            FormatTy::DepthStencil => true,
-            _ => false,
-        }
+  /// Returns true if `Depth`, `Stencil`, `DepthStencil`. False otherwise.
+  #[inline]
+  pub fn is_depth_and_or_stencil(&self) -> bool {
+    match *self {
+      FormatTy::Depth => true,
+      FormatTy::Stencil => true,
+      FormatTy::DepthStencil => true,
+      _ => false,
     }
+  }
 }
 
 /// Describes a uniform value that will be used to fill an image.
 // TODO: should have the same layout as `vk::ClearValue` for performance
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ClearValue {
-    /// Entry for attachments that aren't cleared.
-    None,
-    /// Value for floating-point attachments, including `Unorm`, `Snorm`, `Sfloat`.
-    Float([f32; 4]),
-    /// Value for integer attachments, including `Int`.
-    Int([i32; 4]),
-    /// Value for unsigned integer attachments, including `Uint`.
-    Uint([u32; 4]),
-    /// Value for depth attachments.
-    Depth(f32),
-    /// Value for stencil attachments.
-    Stencil(u32),
-    /// Value for depth and stencil attachments.
-    DepthStencil((f32, u32)),
+  /// Entry for attachments that aren't cleared.
+  None,
+  /// Value for floating-point attachments, including `Unorm`, `Snorm`, `Sfloat`.
+  Float([f32; 4]),
+  /// Value for integer attachments, including `Int`.
+  Int([i32; 4]),
+  /// Value for unsigned integer attachments, including `Uint`.
+  Uint([u32; 4]),
+  /// Value for depth attachments.
+  Depth(f32),
+  /// Value for stencil attachments.
+  Stencil(u32),
+  /// Value for depth and stencil attachments.
+  DepthStencil((f32, u32)),
 }
 
 // TODO: remove all these From implementations once they are no longer needed
 
 impl From<[f32; 1]> for ClearValue {
-    #[inline]
-    fn from(val: [f32; 1]) -> ClearValue {
-        ClearValue::Float([val[0], 0.0, 0.0, 1.0])
-    }
+  #[inline]
+  fn from(val: [f32; 1]) -> ClearValue {
+    ClearValue::Float([val[0], 0.0, 0.0, 1.0])
+  }
 }
 
 impl From<[f32; 2]> for ClearValue {
-    #[inline]
-    fn from(val: [f32; 2]) -> ClearValue {
-        ClearValue::Float([val[0], val[1], 0.0, 1.0])
-    }
+  #[inline]
+  fn from(val: [f32; 2]) -> ClearValue {
+    ClearValue::Float([val[0], val[1], 0.0, 1.0])
+  }
 }
 
 impl From<[f32; 3]> for ClearValue {
-    #[inline]
-    fn from(val: [f32; 3]) -> ClearValue {
-        ClearValue::Float([val[0], val[1], val[2], 1.0])
-    }
+  #[inline]
+  fn from(val: [f32; 3]) -> ClearValue {
+    ClearValue::Float([val[0], val[1], val[2], 1.0])
+  }
 }
 
 impl From<[f32; 4]> for ClearValue {
-    #[inline]
-    fn from(val: [f32; 4]) -> ClearValue {
-        ClearValue::Float(val)
-    }
+  #[inline]
+  fn from(val: [f32; 4]) -> ClearValue {
+    ClearValue::Float(val)
+  }
 }
 
 impl From<[u32; 1]> for ClearValue {
-    #[inline]
-    fn from(val: [u32; 1]) -> ClearValue {
-        ClearValue::Uint([val[0], 0, 0, 0]) // TODO: is alpha value 0 correct?
-    }
+  #[inline]
+  fn from(val: [u32; 1]) -> ClearValue {
+    ClearValue::Uint([val[0], 0, 0, 0]) // TODO: is alpha value 0 correct?
+  }
 }
 
 impl From<[u32; 2]> for ClearValue {
-    #[inline]
-    fn from(val: [u32; 2]) -> ClearValue {
-        ClearValue::Uint([val[0], val[1], 0, 0]) // TODO: is alpha value 0 correct?
-    }
+  #[inline]
+  fn from(val: [u32; 2]) -> ClearValue {
+    ClearValue::Uint([val[0], val[1], 0, 0]) // TODO: is alpha value 0 correct?
+  }
 }
 
 impl From<[u32; 3]> for ClearValue {
-    #[inline]
-    fn from(val: [u32; 3]) -> ClearValue {
-        ClearValue::Uint([val[0], val[1], val[2], 0]) // TODO: is alpha value 0 correct?
-    }
+  #[inline]
+  fn from(val: [u32; 3]) -> ClearValue {
+    ClearValue::Uint([val[0], val[1], val[2], 0]) // TODO: is alpha value 0 correct?
+  }
 }
 
 impl From<[u32; 4]> for ClearValue {
-    #[inline]
-    fn from(val: [u32; 4]) -> ClearValue {
-        ClearValue::Uint(val)
-    }
+  #[inline]
+  fn from(val: [u32; 4]) -> ClearValue {
+    ClearValue::Uint(val)
+  }
 }
 
 impl From<[i32; 1]> for ClearValue {
-    #[inline]
-    fn from(val: [i32; 1]) -> ClearValue {
-        ClearValue::Int([val[0], 0, 0, 0]) // TODO: is alpha value 0 correct?
-    }
+  #[inline]
+  fn from(val: [i32; 1]) -> ClearValue {
+    ClearValue::Int([val[0], 0, 0, 0]) // TODO: is alpha value 0 correct?
+  }
 }
 
 impl From<[i32; 2]> for ClearValue {
-    #[inline]
-    fn from(val: [i32; 2]) -> ClearValue {
-        ClearValue::Int([val[0], val[1], 0, 0]) // TODO: is alpha value 0 correct?
-    }
+  #[inline]
+  fn from(val: [i32; 2]) -> ClearValue {
+    ClearValue::Int([val[0], val[1], 0, 0]) // TODO: is alpha value 0 correct?
+  }
 }
 
 impl From<[i32; 3]> for ClearValue {
-    #[inline]
-    fn from(val: [i32; 3]) -> ClearValue {
-        ClearValue::Int([val[0], val[1], val[2], 0]) // TODO: is alpha value 0 correct?
-    }
+  #[inline]
+  fn from(val: [i32; 3]) -> ClearValue {
+    ClearValue::Int([val[0], val[1], val[2], 0]) // TODO: is alpha value 0 correct?
+  }
 }
 
 impl From<[i32; 4]> for ClearValue {
-    #[inline]
-    fn from(val: [i32; 4]) -> ClearValue {
-        ClearValue::Int(val)
-    }
+  #[inline]
+  fn from(val: [i32; 4]) -> ClearValue {
+    ClearValue::Int(val)
+  }
 }
 
 impl From<f32> for ClearValue {
-    #[inline]
-    fn from(val: f32) -> ClearValue {
-        ClearValue::Depth(val)
-    }
+  #[inline]
+  fn from(val: f32) -> ClearValue {
+    ClearValue::Depth(val)
+  }
 }
 
 impl From<u32> for ClearValue {
-    #[inline]
-    fn from(val: u32) -> ClearValue {
-        ClearValue::Stencil(val)
-    }
+  #[inline]
+  fn from(val: u32) -> ClearValue {
+    ClearValue::Stencil(val)
+  }
 }
 
 impl From<(f32, u32)> for ClearValue {
-    #[inline]
-    fn from(val: (f32, u32)) -> ClearValue {
-        ClearValue::DepthStencil(val)
-    }
+  #[inline]
+  fn from(val: (f32, u32)) -> ClearValue {
+    ClearValue::DepthStencil(val)
+  }
 }
-
 
 // TODO: remove once no longer needed
 pub unsafe trait ClearValuesTuple {
-    type Iter: Iterator<Item = ClearValue>;
-    fn iter(self) -> Self::Iter;
+  type Iter: Iterator<Item = ClearValue>;
+  fn iter(self) -> Self::Iter;
 }
 
 macro_rules! impl_clear_values_tuple {

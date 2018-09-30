@@ -19,26 +19,28 @@ use device::Device;
 
 #[test]
 fn basic_creation() {
-    unsafe {
-        let (device, queue) = gfx_dev_and_queue!();
-        let pool = Device::standard_command_pool(&device, queue.family());
-        SyncCommandBufferBuilder::new(&pool, Kind::primary(), Flags::None).unwrap();
-    }
+  unsafe {
+    let (device, queue) = gfx_dev_and_queue!();
+    let pool = Device::standard_command_pool(&device, queue.family());
+    SyncCommandBufferBuilder::new(&pool, Kind::primary(), Flags::None).unwrap();
+  }
 }
 
 #[test]
 fn basic_conflict() {
-    unsafe {
-        let (device, queue) = gfx_dev_and_queue!();
+  unsafe {
+    let (device, queue) = gfx_dev_and_queue!();
 
-        let pool = Device::standard_command_pool(&device, queue.family());
-        let mut sync = SyncCommandBufferBuilder::new(&pool, Kind::primary(), Flags::None).unwrap();
+    let pool = Device::standard_command_pool(&device, queue.family());
+    let mut sync = SyncCommandBufferBuilder::new(&pool, Kind::primary(), Flags::None).unwrap();
 
-        let buf = CpuAccessibleBuffer::from_data(device, BufferUsage::all(), 0u32).unwrap();
+    let buf = CpuAccessibleBuffer::from_data(device, BufferUsage::all(), 0u32).unwrap();
 
-        match sync.copy_buffer(buf.clone(), buf.clone(), iter::once((0, 0, 4))) {
-            Err(SyncCommandBufferBuilderError::Conflict { .. }) => (),
-            _ => panic!(),
-        };
-    }
+    match sync.copy_buffer(buf.clone(), buf.clone(), iter::once((0, 0, 4))) {
+      Err(SyncCommandBufferBuilderError::Conflict {
+        ..
+      }) => (),
+      _ => panic!(),
+    };
+  }
 }

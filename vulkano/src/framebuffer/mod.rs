@@ -91,8 +91,8 @@
 //!
 
 pub use self::attachments_list::AttachmentsList;
-pub use self::compat_atch::IncompatibleRenderPassAttachmentError;
 pub use self::compat_atch::ensure_image_view_compatible;
+pub use self::compat_atch::IncompatibleRenderPassAttachmentError;
 pub use self::desc::LayoutAttachmentDescription;
 pub use self::desc::LayoutPassDependencyDescription;
 pub use self::desc::LayoutPassDescription;
@@ -133,8 +133,8 @@ mod traits;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(u32)]
 pub enum SubpassContents {
-    /// The subpass will only directly contain commands.
-    Inline = vk::SUBPASS_CONTENTS_INLINE,
-    /// The subpass will only contain secondary command buffers invocations.
-    SecondaryCommandBuffers = vk::SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS,
+  /// The subpass will only directly contain commands.
+  Inline = vk::SUBPASS_CONTENTS_INLINE,
+  /// The subpass will only contain secondary command buffers invocations.
+  SecondaryCommandBuffers = vk::SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS,
 }

@@ -348,12 +348,12 @@ macro_rules! ordered_passes_renderpass {
 
 #[cfg(test)]
 mod tests {
-    use format::Format;
+  use format::Format;
 
-    #[test]
-    fn single_pass_resolve() {
-        let (device, _) = gfx_dev_and_queue!();
-        let _ = single_pass_renderpass!(device.clone(),
+  #[test]
+  fn single_pass_resolve() {
+    let (device, _) = gfx_dev_and_queue!();
+    let _ = single_pass_renderpass!(device.clone(),
             attachments: {
                 a: {
                     load: Clear,
@@ -373,6 +373,7 @@ mod tests {
                 depth_stencil: {},
                 resolve: [b],
             }
-        ).unwrap();
-    }
+        )
+    .unwrap();
+  }
 }

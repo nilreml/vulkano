@@ -25,60 +25,68 @@ use sync::PipelineStages;
 /// Builds a future that represents "now".
 #[inline]
 pub fn now(device: Arc<Device>) -> NowFuture {
-    NowFuture { device: device }
+  NowFuture {
+    device: device
+  }
 }
 
 /// A dummy future that represents "now".
 pub struct NowFuture {
-    device: Arc<Device>,
+  device: Arc<Device>,
 }
 
 unsafe impl GpuFuture for NowFuture {
-    #[inline]
-    fn cleanup_finished(&mut self) {
-    }
+  #[inline]
+  fn cleanup_finished(&mut self) {}
 
-    #[inline]
-    unsafe fn build_submission(&self) -> Result<SubmitAnyBuilder, FlushError> {
-        Ok(SubmitAnyBuilder::Empty)
-    }
+  #[inline]
+  unsafe fn build_submission(&self) -> Result<SubmitAnyBuilder, FlushError> {
+    Ok(SubmitAnyBuilder::Empty)
+  }
 
-    #[inline]
-    fn flush(&self) -> Result<(), FlushError> {
-        Ok(())
-    }
+  #[inline]
+  fn flush(&self) -> Result<(), FlushError> {
+    Ok(())
+  }
 
-    #[inline]
-    unsafe fn signal_finished(&self) {
-    }
+  #[inline]
+  unsafe fn signal_finished(&self) {}
 
-    #[inline]
-    fn queue_change_allowed(&self) -> bool {
-        true
-    }
+  #[inline]
+  fn queue_change_allowed(&self) -> bool {
+    true
+  }
 
-    #[inline]
-    fn queue(&self) -> Option<Arc<Queue>> {
-        None
-    }
+  #[inline]
+  fn queue(&self) -> Option<Arc<Queue>> {
+    None
+  }
 
-    #[inline]
-    fn check_buffer_access(
-        &self, buffer: &BufferAccess, _: bool, _: &Queue)
-        -> Result<Option<(PipelineStages, AccessFlagBits)>, AccessCheckError> {
-        Err(AccessCheckError::Unknown)
-    }
+  #[inline]
+  fn check_buffer_access(
+    &self,
+    buffer: &BufferAccess,
+    _: bool,
+    _: &Queue,
+  ) -> Result<Option<(PipelineStages, AccessFlagBits)>, AccessCheckError> {
+    Err(AccessCheckError::Unknown)
+  }
 
-    #[inline]
-    fn check_image_access(&self, _: &ImageAccess, _: ImageLayout, _: bool, _: &Queue)
-                          -> Result<Option<(PipelineStages, AccessFlagBits)>, AccessCheckError> {
-        Err(AccessCheckError::Unknown)
-    }
+  #[inline]
+  fn check_image_access(
+    &self,
+    _: &ImageAccess,
+    _: ImageLayout,
+    _: bool,
+    _: &Queue,
+  ) -> Result<Option<(PipelineStages, AccessFlagBits)>, AccessCheckError> {
+    Err(AccessCheckError::Unknown)
+  }
 }
 
 unsafe impl DeviceOwned for NowFuture {
-    #[inline]
-    fn device(&self) -> &Arc<Device> {
-        &self.device
-    }
+  #[inline]
+  fn device(&self) -> &Arc<Device> {
+    &self.device
+  }
 }

@@ -55,117 +55,122 @@ macro_rules! impl_vertex {
 
 /// Trait for data types that can be used as vertex members. Used by the `impl_vertex!` macro.
 pub unsafe trait VertexMember {
-    /// Returns the format and array size of the member.
-    fn format() -> (VertexMemberTy, usize);
+  /// Returns the format and array size of the member.
+  fn format() -> (VertexMemberTy, usize);
 }
 
 unsafe impl VertexMember for i8 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::I8, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::I8, 1)
+  }
 }
 
 unsafe impl VertexMember for u8 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::U8, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::U8, 1)
+  }
 }
 
 unsafe impl VertexMember for i16 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::I16, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::I16, 1)
+  }
 }
 
 unsafe impl VertexMember for u16 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::U16, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::U16, 1)
+  }
 }
 
 unsafe impl VertexMember for i32 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::I32, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::I32, 1)
+  }
 }
 
 unsafe impl VertexMember for u32 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::U32, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::U32, 1)
+  }
 }
 
 unsafe impl VertexMember for f32 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::F32, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::F32, 1)
+  }
 }
 
 unsafe impl VertexMember for f64 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        (VertexMemberTy::F64, 1)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    (VertexMemberTy::F64, 1)
+  }
 }
 
 unsafe impl<T> VertexMember for (T,)
-    where T: VertexMember
+where
+  T: VertexMember,
 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        <T as VertexMember>::format()
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    <T as VertexMember>::format()
+  }
 }
 
 unsafe impl<T> VertexMember for (T, T)
-    where T: VertexMember
+where
+  T: VertexMember,
 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        let (ty, sz) = <T as VertexMember>::format();
-        (ty, sz * 2)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    let (ty, sz) = <T as VertexMember>::format();
+    (ty, sz * 2)
+  }
 }
 
 unsafe impl<T> VertexMember for (T, T, T)
-    where T: VertexMember
+where
+  T: VertexMember,
 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        let (ty, sz) = <T as VertexMember>::format();
-        (ty, sz * 3)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    let (ty, sz) = <T as VertexMember>::format();
+    (ty, sz * 3)
+  }
 }
 
 unsafe impl<T> VertexMember for (T, T, T, T)
-    where T: VertexMember
+where
+  T: VertexMember,
 {
-    #[inline]
-    fn format() -> (VertexMemberTy, usize) {
-        let (ty, sz) = <T as VertexMember>::format();
-        (ty, sz * 4)
-    }
+  #[inline]
+  fn format() -> (VertexMemberTy, usize) {
+    let (ty, sz) = <T as VertexMember>::format();
+    (ty, sz * 4)
+  }
 }
 
 macro_rules! impl_vm_array {
-    ($sz:expr) => (
-        unsafe impl<T> VertexMember for [T; $sz]
-            where T: VertexMember
-        {
-            #[inline]
-            fn format() -> (VertexMemberTy, usize) {
-                let (ty, sz) = <T as VertexMember>::format();
-                (ty, sz * $sz)
-            }
-        }
-    );
+  ($sz:expr) => {
+    unsafe impl<T> VertexMember for [T; $sz]
+    where
+      T: VertexMember,
+    {
+      #[inline]
+      fn format() -> (VertexMemberTy, usize) {
+        let (ty, sz) = <T as VertexMember>::format();
+        (ty, sz * $sz)
+      }
+    }
+  };
 }
 
 impl_vm_array!(1);

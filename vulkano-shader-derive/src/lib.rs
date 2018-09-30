@@ -34,7 +34,7 @@
 //! a lot of what is generated will never be used, it's a good idea to put
 //! `#[allow(unused)]` on the module itself if you don't want to see irrelevant
 //! errors.
-//! 
+//!
 //! If you want to take a look at what the macro generates, your best options
 //! are to either read through the code that handles the generation (the
 //! [`reflect`][reflect] function in the `vulkano-shaders` crate) or use a tool
@@ -43,9 +43,9 @@
 //! module like some normal macro crates do since derive macros cannot be used from
 //! the crate they are declared in. On the other hand, if you are looking for a
 //! high-level overview, you can see the below section.
-//! 
+//!
 //! # Generated code overview
-//! 
+//!
 //! The macro generates the following items of interest:
 //! * The `Shader` struct. This contains a single field, `shader`, which is an
 //! `Arc<ShaderModule>`.
@@ -71,11 +71,11 @@
 //! specialization constant found in the shader data. Implementations of
 //! `Default` and [`SpecializationConstants`][SpecializationConstants] are also
 //! generated for the struct.
-//! 
+//!
 //! All of these generated items will be accessed through the module that you
 //! wrote to use the derive macro in. If you wanted to store the `Shader` in
 //! a struct of your own, you could do something like this:
-//! 
+//!
 //! ```
 //! # #[macro_use]
 //! # extern crate vulkano_shader_derive;
@@ -102,11 +102,11 @@
 //! # }
 //! // various use statements
 //! // `vertex_shader` module with shader derive
-//! 
+//!
 //! pub struct Shaders {
 //!     pub vertex_shader: vertex_shader::Shader
 //! }
-//! 
+//!
 //! impl Shaders {
 //!     pub fn load(device: Arc<Device>) -> Result<Self, OomError> {
 //!         Ok(Self {
@@ -115,9 +115,9 @@
 //!     }
 //! }
 //! ```
-//! 
+//!
 //! # Options
-//! 
+//!
 //! The options available are in the form of the following attributes:
 //!
 //! ## `#[ty = "..."]`
@@ -143,7 +143,7 @@
 //!
 //! Provides the path to the GLSL source to be compiled, relative to `Cargo.toml`.
 //! Cannot be used in conjunction with the `#[src]` attribute.
-//! 
+//!
 //! [reflect]: https://github.com/vulkano-rs/vulkano/blob/master/vulkano-shaders/src/lib.rs#L67
 //! [cargo-expand]: https://github.com/dtolnay/cargo-expand
 //! [ShaderModule::new]: https://docs.rs/vulkano/*/vulkano/pipeline/shader/struct.ShaderModule.html#method.new
@@ -167,85 +167,92 @@ use std::path::Path;
 use proc_macro::TokenStream;
 
 enum SourceKind {
-    Src(String),
-    Path(String),
+  Src(String),
+  Path(String),
 }
 
 #[proc_macro_derive(VulkanoShader, attributes(src, path, ty))]
 pub fn derive(input: TokenStream) -> TokenStream {
-    let syn_item: syn::DeriveInput = syn::parse(input).unwrap();
+  let syn_item: syn::DeriveInput = syn::parse(input).unwrap();
 
-    let source_code = {
-        let mut iter = syn_item.attrs.iter().filter_map(|attr| {
-            attr.interpret_meta().and_then(|meta| {
-                match meta {
-                    syn::Meta::NameValue(syn::MetaNameValue { ident, lit: syn::Lit::Str(lit_str), .. }) => {
-                        match ident.to_string().as_ref() {
-                            "src"  => Some(SourceKind::Src(lit_str.value())),
-                            "path" => Some(SourceKind::Path(lit_str.value())),
-                            _      => None,
-                        }
-                    },
+  let source_code = {
+    let mut iter = syn_item.attrs.iter().filter_map(|attr| {
+      attr.interpret_meta().and_then(|meta| match meta {
+        syn::Meta::NameValue(syn::MetaNameValue {
+          ident,
+          lit: syn::Lit::Str(lit_str),
+          ..
+        }) => match ident.to_string().as_ref() {
+          "src" => Some(SourceKind::Src(lit_str.value())),
+          "path" => Some(SourceKind::Path(lit_str.value())),
+          _ => None,
+        },
 
-                    _ => None
-                }
-            })
-        });
+        _ => None,
+      })
+    });
 
-        let source = iter.next().expect("No source attribute given ; put #[src = \"...\"] or #[path = \"...\"]");
+    let source = iter
+      .next()
+      .expect("No source attribute given ; put #[src = \"...\"] or #[path = \"...\"]");
 
-        if iter.next().is_some() {
-            panic!("Multiple src or path attributes given ; please provide only one");
+    if iter.next().is_some() {
+      panic!("Multiple src or path attributes given ; please provide only one");
+    }
+
+    match source {
+      SourceKind::Src(source) => source,
+
+      SourceKind::Path(path) => {
+        let root = env::var("CARGO_MANIFEST_DIR").unwrap_or(".".into());
+        let full_path = Path::new(&root).join(&path);
+
+        if full_path.is_file() {
+          let mut buf = String::new();
+          File::open(full_path)
+            .and_then(|mut file| file.read_to_string(&mut buf))
+            .expect(&format!("Error reading source from {:?}", path));
+          buf
+        } else {
+          panic!(
+            "File {:?} was not found ; note that the path must be relative to your Cargo.toml",
+            path
+          );
         }
+      }
+    }
+  };
 
-        match source {
-            SourceKind::Src(source) => source,
+  let ty_str = syn_item
+    .attrs
+    .iter()
+    .filter_map(|attr| {
+      attr.interpret_meta().and_then(|meta| match meta {
+        syn::Meta::NameValue(syn::MetaNameValue {
+          ident,
+          lit: syn::Lit::Str(lit_str),
+          ..
+        }) => match ident.to_string().as_ref() {
+          "ty" => Some(lit_str.value()),
+          _ => None,
+        },
 
-            SourceKind::Path(path) => {
-                let root = env::var("CARGO_MANIFEST_DIR").unwrap_or(".".into());
-                let full_path = Path::new(&root).join(&path);
+        _ => None,
+      })
+    })
+    .next()
+    .expect("Can't find `ty` attribute ; put #[ty = \"vertex\"] for example.");
 
-                if full_path.is_file() {
-                    let mut buf = String::new();
-                    File::open(full_path)
-                        .and_then(|mut file| file.read_to_string(&mut buf))
-                        .expect(&format!("Error reading source from {:?}", path));
-                    buf
-                } else {
-                    panic!("File {:?} was not found ; note that the path must be relative to your Cargo.toml", path);
-                }
-            }
-        }
-    };
+  let ty = match &ty_str[..] {
+    "vertex" => vulkano_shaders::ShaderKind::Vertex,
+    "fragment" => vulkano_shaders::ShaderKind::Fragment,
+    "geometry" => vulkano_shaders::ShaderKind::Geometry,
+    "tess_ctrl" => vulkano_shaders::ShaderKind::TessControl,
+    "tess_eval" => vulkano_shaders::ShaderKind::TessEvaluation,
+    "compute" => vulkano_shaders::ShaderKind::Compute,
+    _ => panic!("Unexpected shader type ; valid values: vertex, fragment, geometry, tess_ctrl, tess_eval, compute"),
+  };
+  let content = vulkano_shaders::compile(&source_code, ty).unwrap();
 
-    let ty_str = syn_item.attrs.iter().filter_map(|attr| {
-        attr.interpret_meta().and_then(|meta| {
-            match meta {
-                syn::Meta::NameValue(syn::MetaNameValue { ident, lit: syn::Lit::Str(lit_str), .. }) => {
-                    match ident.to_string().as_ref() {
-                        "ty" => Some(lit_str.value()),
-                        _    => None
-                    }
-                }
-
-                _ => None
-            }
-        })
-    }).next().expect("Can't find `ty` attribute ; put #[ty = \"vertex\"] for example.");
-
-    let ty = match &ty_str[..] {
-        "vertex" => vulkano_shaders::ShaderKind::Vertex,
-        "fragment" => vulkano_shaders::ShaderKind::Fragment,
-        "geometry" => vulkano_shaders::ShaderKind::Geometry,
-        "tess_ctrl" => vulkano_shaders::ShaderKind::TessControl,
-        "tess_eval" => vulkano_shaders::ShaderKind::TessEvaluation,
-        "compute" => vulkano_shaders::ShaderKind::Compute,
-        _ => panic!("Unexpected shader type ; valid values: vertex, fragment, geometry, tess_ctrl, tess_eval, compute")
-    };
-    let content = vulkano_shaders::compile(&source_code, ty).unwrap();
-    
-    vulkano_shaders::reflect("Shader", content.as_binary())
-        .unwrap()
-        .parse()
-        .unwrap()
+  vulkano_shaders::reflect("Shader", content.as_binary()).unwrap().parse().unwrap()
 }

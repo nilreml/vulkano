@@ -13,7 +13,7 @@ use vk;
 
 /// Limits of a physical device.
 pub struct Limits<'a> {
-    limits: &'a vk::PhysicalDeviceLimits,
+  limits: &'a vk::PhysicalDeviceLimits,
 }
 
 macro_rules! limits_impl {
@@ -26,7 +26,7 @@ macro_rules! limits_impl {
                     limits
                 }
             }
-            
+
             $(
                 #[inline]
                 pub fn $name(&self) -> $t {
