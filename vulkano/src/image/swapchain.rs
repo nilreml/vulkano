@@ -94,7 +94,9 @@ unsafe impl<W> ImageAccess for SwapchainImage<W> {
 
   #[inline]
   fn initial_layout_requirement(&self) -> ImageLayout {
-    ImageLayout::PresentSrc
+    // ImageLayout::PresentSrc is required only as final layout (for presenting)
+    // Requiring it as initial layout causes unnecessary errors
+    ImageLayout::Undefined
   }
 
   #[inline]
