@@ -1,3 +1,4 @@
+#![allow(warnings)]
 #![doc(html_logo_url = "https://raw.githubusercontent.com/vulkano-rs/vulkano/master/logo.png")]
 //! Safe and rich Rust wrapper around the Vulkan API.
 //!

@@ -1,3 +1,4 @@
+#![allow(warnings)]
 //! Vulkano's **EXPERIMENTAL** task graph implementation. Expect many bugs and incomplete features.
 //! There is also currently no validation except the most bare-bones sanity checks. You may also
 //! get panics in random places.
